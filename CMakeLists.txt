@@ -1,7 +1,6 @@
-include_directories(include)
+cmake_minimum_required(VERSION 3.5)
+project(nlp_coursera)
 
-set(assignment1_SOURCE_FILES src/main.cpp
-                             src/HiddenMarkovModel.cpp
-                             src/DataParser.cpp)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-add_executable(assignment1 ${assignment1_SOURCE_FILES})
+add_subdirectory(assignment1)

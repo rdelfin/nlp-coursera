@@ -9,7 +9,7 @@
 
 
 DataParser::DataParser(std::unordered_multimap<std::string, Word *>& textToWord,
-                       std::unordered_multimap<Tag, Word *>& tagToWord,
+                       std::unordered_multimap<int, Word *>& tagToWord,
                        std::vector<Ngram>& ngrams, std::vector<Word>& words)
                     : textToWord(textToWord), tagToWord(tagToWord),
                       ngrams(ngrams), words(words)
@@ -54,7 +54,7 @@ void DataParser::parse(std::istream& stream) {
 
         // Push pointers to appropriate hash-maps
         textToWord.insert({word.name, &words[words.size() - 1]});
-        tagToWord.insert({word.tag, &words[words.size() - 1]});
+        tagToWord.insert({(int)word.tag, &words[words.size() - 1]});
 
     }
 

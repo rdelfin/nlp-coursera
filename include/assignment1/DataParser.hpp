@@ -14,7 +14,7 @@
 class DataParser {
 public:
     DataParser(std::unordered_multimap<std::string, Word*>&,
-               std::unordered_multimap<Tag, Word*>&,
+               std::unordered_multimap<int, Word*>&,
                std::vector<Ngram>&,
                std::vector<Word>&);
 
@@ -27,7 +27,7 @@ public:
 
 private:
     std::unordered_multimap<std::string, Word*>& textToWord;
-    std::unordered_multimap<Tag, Word*>& tagToWord;
+    std::unordered_multimap<int, Word*>& tagToWord;
     std::vector<Ngram>& ngrams;
     std::vector<Word>& words;
 };

@@ -17,6 +17,8 @@ public:
                       std::unordered_multimap<int, Word>&,
                       std::vector<Ngram>&, std::vector<Word>&);
 
+    Tag predict(const std::string& word);
+
     double emission(Tag, const std::string& word);
 
     ~HiddenMarkovModel();

@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
     parser.parse("data/gene.train.count");
 
-    std::cout << "Emission for \'androgen\'" << hmm.emission(TAG_I_GENE, "androgen") << std::endl;
+
 
 
     return 0;

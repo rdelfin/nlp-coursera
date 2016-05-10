@@ -19,6 +19,20 @@ HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, Word>&
 }
 
 
+Tag HiddenMarkovModel::predict(const std::string &word) {
+    double max = 0;
+    Tag result = TAG_O;
+    for(int i = TAG_O; i <= TAG_UNKNOWN; i++) {
+        double pred = emission((Tag)i, word);
+        if(pred > max) {
+            max = pred;
+            result = (Tag)i;
+        }
+    }
+
+    return result;
+}
+
 double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
     long tagCount = countTag(tag);
 

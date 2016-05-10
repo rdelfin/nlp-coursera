@@ -38,3 +38,14 @@ static Tag parseTag(const std::string& str) {
 
     return TAG_UNKNOWN;
 }
+
+static std::string stringTag(Tag tag) {
+    switch (tag) {
+        case TAG_O: return "O";
+        case TAG_I_GENE: return "I-GENE";
+        case TAG_START: return "*";
+        case TAG_STOP: return "STOP";
+    }
+
+    return "";
+}

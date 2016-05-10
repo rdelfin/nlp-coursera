@@ -8,8 +8,8 @@
 #include <limits>
 
 
-DataParser::DataParser(std::unordered_multimap<std::string, Word *>& textToWord,
-                       std::unordered_multimap<int, Word *>& tagToWord,
+DataParser::DataParser(std::unordered_multimap<std::string, Word>& textToWord,
+                       std::unordered_multimap<int, Word>& tagToWord,
                        std::vector<Ngram>& ngrams, std::vector<Word>& words)
                     : textToWord(textToWord), tagToWord(tagToWord),
                       ngrams(ngrams), words(words)
@@ -38,8 +38,7 @@ void DataParser::parse(std::istream& stream) {
             std::string tag, name;
 
             // Pull in tag and word
-            stream >> name;
-            stream >> tag;
+            stream >> tag >> name;
 
             // Build up word
             Word word;
@@ -51,9 +50,9 @@ void DataParser::parse(std::istream& stream) {
             words.push_back(word);
 
             // Push pointers to appropriate hash-maps
-            textToWord.insert({word.name, &words[words.size() - 1]});
-            tagToWord.insert({(int)word.tag, &words[words.size() - 1]});
-
+            Word& wordRef = words.back();
+            textToWord.insert({word.name, wordRef});
+            tagToWord.insert({(int)word.tag, wordRef});
         }
 
         // This is an n-gram. Format is:
@@ -79,7 +78,7 @@ void DataParser::parse(std::istream& stream) {
             // lolwut
             char buffer[256];
             stream.getline(buffer, 256);
-            std::cerr << "Error! Line in incorrect format: " << std::endl << '\t' << buffer << std::endl;
+            std::cerr << "Error! Line with incorrect format: " << std::endl << '\t' << buffer << std::endl;
         }
     }
 

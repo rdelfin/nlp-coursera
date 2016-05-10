@@ -1,9 +1,22 @@
 //
-// Created by rdelfin on 5/8/16.
+// Created by Ricardo Delfin Garcia on 5/8/16.
 //
 
 #include "assignment1/HiddenMarkovModel.hpp"
 
+#include <iostream>
+#include <iterator>
+
+
+HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, Word>& textToWord,
+                                     std::unordered_multimap<int, Word>& tagToWord,
+                                     std::vector<Ngram>& ngrams,
+                                     std::vector<Word>& words)
+                                    : textToWord(textToWord), tagToWord(tagToWord),
+                                      ngrams(ngrams), words(words)
+{
+
+}
 
 
 double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
@@ -15,19 +28,45 @@ double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
     return (double)countTagWord(tag, word) / tagCount;
 }
 
-long HiddenMarkovModel::countTag(Tag tag) {
-    return tagToWord.count(tag);
+long HiddenMarkovModel::countWord(const std::string& word) {
+    long count = 0;
+
+    auto range = textToWord.equal_range(word);
+
+    for(auto it = range.first; it != range.second; ++it) {
+        count += it->second.count;
+    }
+
+    return count;
 }
 
-long HiddenMarkovModel::countTagWord(Tag tag, const std::string &word) {
+long HiddenMarkovModel::countTag(Tag tag) {
+    long count = 0;
+
+
+    tagToWord.count(tag);
+    auto range = tagToWord.equal_range(tag);
+
+    for(auto it = range.first; it != range.second; ++it) {
+        count += it->second.count;
+    }
+
+    return count;
+}
+
+long HiddenMarkovModel::countTagWord(Tag tag, const std::string& word) {
     long count = 0;
 
     // Logic tells us each word will have less entries than the tags
     auto range = textToWord.equal_range(word);
 
     for (auto it = range.first; it != range.second; ++it)
-        if(it->second->tag == tag)
-            count++;
+        if(it->second.tag == tag)
+            count += it->second.count;
 
     return count;
+}
+
+HiddenMarkovModel::~HiddenMarkovModel() {
+
 }

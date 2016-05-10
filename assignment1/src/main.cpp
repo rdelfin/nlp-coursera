@@ -3,9 +3,28 @@
 //
 
 #include <iostream>
+#include <unordered_map>
+#include <vector>
+
+#include <assignment1/HiddenMarkovModel.hpp>
+
+#include "assignment1/DataParser.hpp"
+#include "assignment1/Data.hpp"
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Hello world!" << std::endl;
+    std::unordered_multimap<std::string, Word> textToWord;
+    std::unordered_multimap<int, Word> tagToWord;
+    std::vector<Ngram> ngrams;
+    std::vector<Word> words;
+
+    DataParser parser(textToWord, tagToWord, ngrams, words);
+    HiddenMarkovModel hmm(textToWord, tagToWord, ngrams, words);
+
+    parser.parse("data/gene.train.count");
+
+    std::cout << "Emission for \'androgen\'" << hmm.emission(TAG_I_GENE, "androgen") << std::endl;
+
+
     return 0;
 }

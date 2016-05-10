@@ -17,6 +17,7 @@ typedef enum {
 
 class Word {
 public:
+    Word() : count(0), tag(TAG_O), name("") { }
     int count;
     Tag tag;
     std::string name;
@@ -24,6 +25,7 @@ public:
 
 class Ngram {
 public:
+    Ngram() : count(0), terms() { }
     std::vector<Tag> terms;
     int count;
 };

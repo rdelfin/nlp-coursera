@@ -15,8 +15,8 @@
 
 int main(int argc, char* argv[])
 {
-    std::unordered_multimap<std::string, Word> textToWord;
-    std::unordered_multimap<int, Word> tagToWord;
+    std::unordered_multimap<std::string, size_t> textToWord;
+    std::unordered_multimap<int, size_t> tagToWord;
     std::vector<Ngram> ngrams;
     std::vector<Word> words;
 

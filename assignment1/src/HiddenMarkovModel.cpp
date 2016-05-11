@@ -8,8 +8,8 @@
 #include <iterator>
 
 
-HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, Word>& textToWord,
-                                     std::unordered_multimap<int, Word>& tagToWord,
+HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, size_t>& textToWord,
+                                     std::unordered_multimap<int, size_t>& tagToWord,
                                      std::vector<Ngram>& ngrams,
                                      std::vector<Word>& words)
                                     : textToWord(textToWord), tagToWord(tagToWord),
@@ -48,7 +48,7 @@ long HiddenMarkovModel::countWord(const std::string& word) {
     auto range = textToWord.equal_range(word);
 
     for(auto it = range.first; it != range.second; ++it) {
-        count += it->second.count;
+        count += words[it->second].count;
     }
 
     return count;
@@ -62,7 +62,7 @@ long HiddenMarkovModel::countTag(Tag tag) {
     auto range = tagToWord.equal_range(tag);
 
     for(auto it = range.first; it != range.second; ++it) {
-        count += it->second.count;
+        count += words[it->second].count;
     }
 
     return count;
@@ -75,8 +75,8 @@ long HiddenMarkovModel::countTagWord(Tag tag, const std::string& word) {
     auto range = textToWord.equal_range(word);
 
     for (auto it = range.first; it != range.second; ++it)
-        if(it->second.tag == tag)
-            count += it->second.count;
+        if(words[it->second].tag == tag)
+            count += words[it->second].count;
 
     return count;
 }

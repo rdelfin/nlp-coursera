@@ -8,8 +8,8 @@
 #include <limits>
 
 
-DataParser::DataParser(std::unordered_multimap<std::string, Word>& textToWord,
-                       std::unordered_multimap<int, Word>& tagToWord,
+DataParser::DataParser(std::unordered_multimap<std::string, size_t>& textToWord,
+                       std::unordered_multimap<int, size_t>& tagToWord,
                        std::vector<Ngram>& ngrams, std::vector<Word>& words)
                     : textToWord(textToWord), tagToWord(tagToWord),
                       ngrams(ngrams), words(words)
@@ -50,9 +50,8 @@ void DataParser::parse(std::istream& stream) {
             words.push_back(word);
 
             // Push pointers to appropriate hash-maps
-            Word& wordRef = words.back();
-            textToWord.insert({word.name, wordRef});
-            tagToWord.insert({(int)word.tag, wordRef});
+            textToWord.insert({word.name, words.size() - 1});
+            tagToWord.insert({(int)word.tag, words.size() - 1});
         }
 
         // This is an n-gram. Format is:

@@ -35,11 +35,16 @@ Tag HiddenMarkovModel::predict(const std::string &word) {
 
 double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
     long tagCount = countTag(tag);
+    long wordTagCount = countTagWord(tag, word);
 
     // Avoid division by zero.
     if(tagCount == 0) return 0;
 
-    return (double)countTagWord(tag, word) / tagCount;
+    // In this case, make use of the RARE words
+    if(wordTagCount == 0)
+        return (double)countTagWord(tag, "_RARE_") / tagCount;
+    else
+        return (double)wordTagCount / tagCount;
 }
 
 long HiddenMarkovModel::countWord(const std::string& word) {

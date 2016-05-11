@@ -24,6 +24,29 @@ void DataParser::parse(const std::string &fileName) {
 }
 
 void DataParser::parse(std::istream& stream) {
+    // Insert rare words.
+    Word rareO, rareGene;
+    size_t rareOIndex, rareGeneIndex;
+    rareO.name = rareGene.name = "_RARE_";
+    rareO.count = rareGene.count = 0;
+    rareO.tag = TAG_O;
+    rareGene.tag = TAG_I_GENE;
+
+    words.push_back(rareO);
+    words.push_back(rareGene);
+
+    rareOIndex = words.size() - 2;
+    rareGeneIndex = words.size() - 1;
+
+    // We need to insert these to the Tag-to-word map
+    tagToWord.insert({rareO.tag, rareOIndex});
+    tagToWord.insert({rareGene.tag, rareGeneIndex});
+
+    // Also insert special, "_RARE_" map
+    textToWord.insert({rareO.name, rareOIndex});
+    textToWord.insert({rareGene.name, rareGeneIndex});
+
+
     while(!stream.eof()) {
         // First number always denotes count. The second is type.
         // aka: WORDTAG, 1-GRAM, 2-GRAM or 3-GRAM
@@ -46,12 +69,24 @@ void DataParser::parse(std::istream& stream) {
             word.count = count;
             word.tag = parseTag(tag);
 
-            // Push to provided vector
-            words.push_back(word);
+            // Add to rare instead
+            if(count < 5) {
+                size_t idx = (word.tag == TAG_I_GENE ? rareGeneIndex : rareOIndex);
+                words[idx].count += word.count;
 
-            // Push pointers to appropriate hash-maps
-            textToWord.insert({word.name, words.size() - 1});
-            tagToWord.insert({(int)word.tag, words.size() - 1});
+                // This will map all rare words to the _RARE_ word
+                textToWord.insert({word.name, idx});
+            }
+
+            // Push to vector and continue
+            else {
+                // Push to provided vector
+                words.push_back(word);
+
+                // Push pointers to appropriate hash-maps
+                textToWord.insert({word.name, words.size() - 1});
+                tagToWord.insert({(int)word.tag, words.size() - 1});
+            }
         }
 
         // This is an n-gram. Format is:

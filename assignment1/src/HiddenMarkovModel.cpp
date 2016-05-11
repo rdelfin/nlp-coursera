@@ -41,8 +41,9 @@ double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
     if(tagCount == 0) return 0;
 
     // In this case, make use of the RARE words
-    if(wordTagCount == 0)
-        return (double)countTagWord(tag, "_RARE_") / tagCount;
+    if(countWord(word) == 0) {
+        return (double) countTagWord(tag, "_RARE_") / tagCount;
+    }
     else
         return (double)wordTagCount / tagCount;
 }

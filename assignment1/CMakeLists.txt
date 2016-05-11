@@ -2,7 +2,8 @@ include_directories(include)
 
 set(assignment1_SOURCE_FILES src/main.cpp
                              src/HiddenMarkovModel.cpp
-                             src/DataParser.cpp)
+                             src/DataParser.cpp
+                             src/Tagger.cpp)
 
 add_executable(assignment1 ${assignment1_SOURCE_FILES})
 

@@ -21,6 +21,8 @@ public:
     void parse(const std::string& fileName);
     void parse(std::istream&);
 
+    void dump(const std::string& file);
+
     ~DataParser();
 
 private:

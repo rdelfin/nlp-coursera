@@ -3,6 +3,7 @@
 //
 
 #include "assignment1/DataParser.hpp"
+#include "assignment1/Data.hpp"
 
 #include <fstream>
 #include <limits>
@@ -24,6 +25,8 @@ void DataParser::parse(const std::string &fileName) {
 }
 
 void DataParser::parse(std::istream& stream) {
+    size_t rareCount;
+
     // Insert rare words.
     Word rareO, rareGene;
     size_t rareOIndex, rareGeneIndex;
@@ -71,6 +74,7 @@ void DataParser::parse(std::istream& stream) {
 
             // Add to rare instead
             if(count < 5) {
+                rareCount++;
                 size_t idx = (word.tag == TAG_I_GENE ? rareGeneIndex : rareOIndex);
                 words[idx].count += word.count;
 
@@ -116,8 +120,45 @@ void DataParser::parse(std::istream& stream) {
         }
     }
 
+    std::cout << "Total rare words: " << rareCount << std::endl;
+
 }
 
+
+void DataParser::dump(const std::string& file)
+{
+    std::ofstream streamWords(file + ".words");
+    std::ofstream streamNgrams(file + ".ngrams");
+    std::ofstream streamtextMap(file + ".map.text");
+    std::ofstream streamtagMap(file + ".map.tag");
+
+    for(int i = 0; i < words.size(); i++) {
+        streamWords << words[i].name << "\t" <<
+            stringTag(words[i].tag) << "\t" << words[i].count
+            << std::endl;
+    }
+
+    for(int i = 0; i < ngrams.size(); i++) {
+        streamNgrams << ngrams[i].count << "\t";
+        for(int j = 0; j < ngrams[i].terms.size(); j++) {
+            streamNgrams << stringTag(ngrams[i].terms[i]) << " ";
+        }
+        streamNgrams << std::endl;
+    }
+
+    for(auto it = textToWord.begin(); it != textToWord.end(); ++it) {
+        Word word = words[it->second];
+        streamtextMap << it->first << " to [" << word.name <<
+            ", " << stringTag(word.tag) << "]" << std::endl;
+    }
+
+    for(auto it = tagToWord.begin(); it != tagToWord.end(); ++it) {
+        Word word = words[it->second];
+        streamtagMap << stringTag((Tag)it->first) << " to ["
+            << word.name << ", " << stringTag(word.tag) << "]"
+            << std::endl;
+    }
+}
 DataParser::~DataParser() {
 
 }

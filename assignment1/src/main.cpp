@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
     Tagger tagger(hmm, devFile, resultFile);
 
     parser.parse("data/gene.train.count");
+    parser.dump("data/datadump");
     tagger.tag();
 
     return 0;

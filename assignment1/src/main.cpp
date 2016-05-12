@@ -28,8 +28,11 @@ int main(int argc, char* argv[])
     Tagger tagger(hmm, devFile, resultFile);
 
     parser.parse("data/gene.train.count");
+    std::cout << "Parsing complete!" << std::endl;
     parser.dump("data/datadump");
+    std::cout << "Tagging data... " << std::endl;
     tagger.tag();
+    std::cout << "Data tagged!" << std::endl;
 
     return 0;
 }

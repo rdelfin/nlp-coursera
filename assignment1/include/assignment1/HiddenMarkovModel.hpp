@@ -20,6 +20,8 @@ public:
     Tag predict(const std::string& word);
 
     double emission(Tag, const std::string& word);
+    // Computes p(curr|twoPrev,prev)
+    double trigamProb(Tag curr, Tag prev, Tag twoPrev);
 
     ~HiddenMarkovModel();
 private:
@@ -31,4 +33,7 @@ private:
     long countWord(const std::string& word);
     long countTagWord(Tag, const std::string& word);
     long countTag(Tag);
+
+    // Counts up all instances of trigram <tag1 tag2 tag3>
+    long countNgram(std::vector<Tag> tags);
 };

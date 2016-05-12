@@ -25,7 +25,7 @@ void DataParser::parse(const std::string &fileName) {
 }
 
 void DataParser::parse(std::istream& stream) {
-    size_t rareCount;
+    size_t rareCount = 0;
 
     // Insert rare words.
     Word rareO, rareGene;
@@ -64,7 +64,17 @@ void DataParser::parse(std::istream& stream) {
             std::string tag, name;
 
             // Pull in tag and word
-            stream >> tag >> name;
+            stream >> tag;
+            std::getline(stream, name);
+
+            // Left trim name (it always contains additional whitespace)
+            size_t startpos = name.find_first_not_of(" \t");
+            if(std::string::npos != startpos)
+            {
+                name = name.substr(startpos);
+            }
+
+            std::cout << "Adding word: [" << count << ", " << name << ", " << tag << "]" << std::endl;
 
             // Build up word
             Word word;

@@ -35,5 +35,5 @@ private:
     long countTag(Tag);
 
     // Counts up all instances of trigram <tag1 tag2 tag3>
-    long countNgram(std::vector<Tag> tags);
+    long countNgram(const std::vector<Tag>& tags);
 };

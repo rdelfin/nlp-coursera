@@ -97,7 +97,7 @@ long HiddenMarkovModel::countTagWord(Tag tag, const std::string& word) {
 }
 
 
-long countNgram(std::vector<Tag> tags) {
+long countNgram(const std::vector<Tag>& tags) {
     for(auto it = ngrams.begin(); it != ngrams.end(); ++it) {
         if(it->terms.size() == tags.size()) {
 

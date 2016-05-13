@@ -33,8 +33,13 @@ Tag HiddenMarkovModel::predict(const std::string &word) {
     return result;
 }
 
-double trigamProb(Tag curr, Tag prev, Tag twoPrev){
+double HiddenMarkovModel::trigamProb(Tag curr, Tag twoPrev, Tag prev){
+    long trigram = countNgram({twoPrev, prev, curr});
+    long bigram = countNgram({twoPrev, prev});
 
+    if(bigram == 0) return 0;
+
+    return (double)trigram / bigram;
 }
 
 double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
@@ -97,7 +102,7 @@ long HiddenMarkovModel::countTagWord(Tag tag, const std::string& word) {
 }
 
 
-long countNgram(const std::vector<Tag>& tags) {
+long HiddenMarkovModel::countNgram(const std::vector<Tag>& tags) {
     for(auto it = ngrams.begin(); it != ngrams.end(); ++it) {
         if(it->terms.size() == tags.size()) {
 

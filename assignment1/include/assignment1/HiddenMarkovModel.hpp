@@ -21,7 +21,7 @@ public:
 
     double emission(Tag, const std::string& word);
     // Computes p(curr|twoPrev,prev)
-    double trigamProb(Tag curr, Tag prev, Tag twoPrev);
+    double trigamProb(Tag curr, Tag twoPrev, Tag prev);
 
     ~HiddenMarkovModel();
 private:

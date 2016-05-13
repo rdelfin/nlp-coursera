@@ -17,7 +17,7 @@ public:
                       std::unordered_multimap<int, size_t>&,
                       std::vector<Ngram>&, std::vector<Word>&);
 
-    Tag predict(const std::string& word);
+    std::vector<Tag> predict(const std::vector<std::string>& word);
 
     double emission(Tag, const std::string& word);
     // Computes p(curr|twoPrev,prev)

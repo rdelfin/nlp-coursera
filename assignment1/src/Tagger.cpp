@@ -11,16 +11,23 @@ Tagger::Tagger(HiddenMarkovModel& hmm, std::istream& input_stream, std::ostream&
 }
 
 void Tagger::tag() {
+    std::vector<std::string> sentence;
     std::string line;
     getline(input_stream, line);
 
     while(!input_stream.eof()) {
-        if(line != "") {
-            Tag tag = hmm.predict(line);
-            output_stream << line << " " << stringTag(tag);
-        }
+        if(line == "") {
+            std::vector<Tag> tags = hmm.predict(sentence);
 
-        output_stream << std::endl;
+            for(int i = 0; i < tags.size(); i++) {
+                output_stream << sentence[i] << stringTag(tags[i]) << std::endl;
+            }
+
+            output_stream << std::endl;
+        }
+        else
+            sentence.push_back(line);
+
         getline(input_stream, line);
     }
 }
@@ -28,3 +35,4 @@ void Tagger::tag() {
 Tagger::~Tagger() {
 
 }
+

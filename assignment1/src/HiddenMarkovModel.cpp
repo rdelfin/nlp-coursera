@@ -19,18 +19,18 @@ HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, size_t
 }
 
 
-Tag HiddenMarkovModel::predict(const std::string &word) {
+std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &word) {
     double max = 0;
     Tag result = TAG_O;
     for(int i = TAG_O; i <= TAG_UNKNOWN; i++) {
-        double pred = emission((Tag)i, word);
+        double pred = emission((Tag)i, word[0]);
         if(pred > max) {
             max = pred;
             result = (Tag)i;
         }
     }
 
-    return result;
+    return {result};
 }
 
 double HiddenMarkovModel::trigamProb(Tag curr, Tag twoPrev, Tag prev){

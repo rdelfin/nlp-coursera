@@ -19,21 +19,53 @@ HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, size_t
 }
 
 
-std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &word) {
-    double max = 0;
-    Tag result = TAG_O;
-    for(int i = TAG_O; i <= TAG_UNKNOWN; i++) {
-        double pred = emission((Tag)i, word[0]);
-        if(pred > max) {
-            max = pred;
-            result = (Tag)i;
+std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sentence) {
+    // These are the set of tags that each word can take on
+    std::vector<Tag> Sstart = {TAG_START};
+    std::vector<Tag> Sgeneral = {TAG_O, TAG_I_GENE};
+
+    // This map is the dynamic programming table Pi(Pos, Prev, Curr)
+    // This also inserts the basecase: Pi(0, *, *) = 1
+    std::unordered_map<PiData, double, PiDataHash> pi;
+    pi.insert({{-1, TAG_START, TAG_START}, 1});
+
+
+    std::vector<Tag> result;
+
+    for(int i = 0; i < sentence.size(); i++) {
+        const std::vector<Tag>& Stwoprev = ((i - 2) < 0 ? Sstart : Sgeneral);
+        const std::vector<Tag>& Sprev = ((i - 1) < 0 ? Sstart : Sgeneral);
+        const std::vector<Tag>& Scurr = (i < 0 ? Sstart : Sgeneral);
+        for(auto itprev = Sprev.begin(); itprev != Sprev.end(); ++itprev) {
+            for(auto itcurr = Scurr.begin(); itcurr != Scurr.end(); ++itcurr) {
+                // Calculate Pi(i,itprev, itcurr) = max w(Pi(i-1,w,itprev)*q(itcurr|w,itprev)*e(x_i|itcurr)
+                result.push_back(getBestTag(pi, Stwoprev, i, *itprev, *itcurr, sentence[i]));
+            }
         }
     }
 
-    return {result};
+    return result;
 }
 
-double HiddenMarkovModel::trigamProb(Tag curr, Tag twoPrev, Tag prev){
+Tag HiddenMarkovModel::getBestTag(std::unordered_map<PiData, double, PiDataHash>& pi, const std::vector<Tag>& s, int loc, Tag prev, Tag curr, std::string word) {
+    double max = 0;
+    Tag maxTag = TAG_UNKNOWN;
+
+    for(int i = 0; i < s.size(); i++) {
+        double val = pi[{loc- 1, s[i], prev}] * trigramProb(curr, s[i], prev) * emission(curr, word);
+
+        if(val >= max) {
+            max = val;
+            maxTag = s[i];
+        }
+    }
+
+    pi.insert({{loc, prev, curr}, max});
+
+    return maxTag;
+}
+
+double HiddenMarkovModel::trigramProb(Tag curr, Tag twoPrev, Tag prev) {
     long trigram = countNgram({twoPrev, prev, curr});
     long bigram = countNgram({twoPrev, prev});
 

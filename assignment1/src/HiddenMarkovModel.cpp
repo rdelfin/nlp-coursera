@@ -33,7 +33,8 @@ std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sent
     // been computed
     std::unordered_map<PiData, Tag, PiDataHash> bp;
 
-    std::vector<Tag> result;
+    std::vector<Tag> tags;
+    tags.resize(sentence.size(), TAG_UNKNOWN);
 
     for(int i = 0; i < sentence.size(); i++) {
         const std::vector<Tag>& stwoprev = ((i - 2) < 0 ? sstart : sgeneral);
@@ -49,7 +50,7 @@ std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sent
                 data.curr = *itcurr;
 
                 // Obtain tag for Pi(i, *itprev, *itcurr). This goes into the bp map
-                Tag t = getBestTag(pi, Stwoprev, data.loc, data.prev, data.curr, sentence[i]);
+                Tag t = getBestTag(pi, stwoprev, data.loc, data.prev, data.curr, sentence[i]);
 
                 bp.insert({data, t});
             }
@@ -58,14 +59,14 @@ std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sent
 
     // For the last two tags, y_{n-1} and y_{n}, we set them to the argmax of u and v respectively of:
     // Pi(n, u, v)q(STOP|u, v). This is beause STOP is a special tag
-    const std::vector<Tag>& sprev = ((i - 1) < 0 ? sstart : sgeneral);
+    const std::vector<Tag>& sprev = ((sentence.size() - 2) < 0 ? sstart : sgeneral);
     const std::vector<Tag>& scurr = sgeneral;
     Tag ynMax = TAG_UNKNOWN, yprevMax = TAG_UNKNOWN;
     double max = 0;
 
     for(auto itcurr = scurr.begin(); itcurr != scurr.end(); ++itcurr) {
         for(auto itprev = sprev.begin(); itprev != sprev.end(); ++itprev) {
-            double prob = pi[{sentence.size() - 1, *itprev, *itcurr}] * trigramProb(TAG_STOP, *itprev, *itcurr);
+            double prob = pi[{(int)sentence.size() - 1, *itprev, *itcurr}] * trigramProb(TAG_STOP, *itprev, *itcurr);
 
             if(prob >= max) {
                 ynMax = *itcurr;
@@ -75,11 +76,16 @@ std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sent
         }
     }
 
-    tags.push_back(ynMax);
-    tags.push_back(yprevMax);
+    tags[sentence.size() - 1] = ynMax;
+    tags[sentence.size() - 2] = yprevMax;
+
+    // Iterate back through the back pointers and insert items into the tags vector
+    for(int i = sentence.size() - 3; i >= 0; i--) {
+        tags[i] = bp[{i + 2, tags[i + 1], tags[i + 2]}];
+    }
 
 
-    return result;
+    return tags;
 }
 
 Tag HiddenMarkovModel::getBestTag(std::unordered_map<PiData, double, PiDataHash>& pi, const std::vector<Tag>& s, int loc, Tag prev, Tag curr, std::string word) {

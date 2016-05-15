@@ -20,7 +20,7 @@ void Tagger::tag() {
             std::vector<Tag> tags = hmm.predict(sentence);
 
             for(int i = 0; i < tags.size(); i++) {
-                output_stream << sentence[i] << stringTag(tags[i]) << std::endl;
+                output_stream << sentence[i] << " " << stringTag(tags[i]) << std::endl;
             }
 
             output_stream << std::endl;

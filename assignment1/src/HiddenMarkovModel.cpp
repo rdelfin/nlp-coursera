@@ -21,28 +21,63 @@ HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, size_t
 
 std::vector<Tag> HiddenMarkovModel::predict(const std::vector<std::string> &sentence) {
     // These are the set of tags that each word can take on
-    std::vector<Tag> Sstart = {TAG_START};
-    std::vector<Tag> Sgeneral = {TAG_O, TAG_I_GENE};
+    std::vector<Tag> sstart = {TAG_START};
+    std::vector<Tag> sgeneral = {TAG_O, TAG_I_GENE};
 
     // This map is the dynamic programming table Pi(Pos, Prev, Curr)
-    // This also inserts the basecase: Pi(0, *, *) = 1
+    // This also inserts the base case: Pi(0, *, *) = 1
     std::unordered_map<PiData, double, PiDataHash> pi;
     pi.insert({{-1, TAG_START, TAG_START}, 1});
 
+    // Map of backpointers. Used to find the optimal path once each pi has
+    // been computed
+    std::unordered_map<PiData, Tag, PiDataHash> bp;
 
     std::vector<Tag> result;
 
     for(int i = 0; i < sentence.size(); i++) {
-        const std::vector<Tag>& Stwoprev = ((i - 2) < 0 ? Sstart : Sgeneral);
-        const std::vector<Tag>& Sprev = ((i - 1) < 0 ? Sstart : Sgeneral);
-        const std::vector<Tag>& Scurr = (i < 0 ? Sstart : Sgeneral);
-        for(auto itprev = Sprev.begin(); itprev != Sprev.end(); ++itprev) {
-            for(auto itcurr = Scurr.begin(); itcurr != Scurr.end(); ++itcurr) {
-                // Calculate Pi(i,itprev, itcurr) = max w(Pi(i-1,w,itprev)*q(itcurr|w,itprev)*e(x_i|itcurr)
-                result.push_back(getBestTag(pi, Stwoprev, i, *itprev, *itcurr, sentence[i]));
+        const std::vector<Tag>& stwoprev = ((i - 2) < 0 ? sstart : sgeneral);
+        const std::vector<Tag>& sprev = ((i - 1) < 0 ? sstart : sgeneral);
+        const std::vector<Tag>& scurr = sgeneral;  // i will never be negative
+
+        // Iterate over every word and calculate Pi(i, prev, curr) for all possible prev and curr)
+        for(auto itprev = sprev.begin(); itprev != sprev.end(); ++itprev) {
+            for(auto itcurr = scurr.begin(); itcurr != scurr.end(); ++itcurr) {
+                PiData data;
+                data.loc = i;
+                data.prev = *itprev;
+                data.curr = *itcurr;
+
+                // Obtain tag for Pi(i, *itprev, *itcurr). This goes into the bp map
+                Tag t = getBestTag(pi, Stwoprev, data.loc, data.prev, data.curr, sentence[i]);
+
+                bp.insert({data, t});
             }
         }
     }
+
+    // For the last two tags, y_{n-1} and y_{n}, we set them to the argmax of u and v respectively of:
+    // Pi(n, u, v)q(STOP|u, v). This is beause STOP is a special tag
+    const std::vector<Tag>& sprev = ((i - 1) < 0 ? sstart : sgeneral);
+    const std::vector<Tag>& scurr = sgeneral;
+    Tag ynMax = TAG_UNKNOWN, yprevMax = TAG_UNKNOWN;
+    double max = 0;
+
+    for(auto itcurr = scurr.begin(); itcurr != scurr.end(); ++itcurr) {
+        for(auto itprev = sprev.begin(); itprev != sprev.end(); ++itprev) {
+            double prob = pi[{sentence.size() - 1, *itprev, *itcurr}] * trigramProb(TAG_STOP, *itprev, *itcurr);
+
+            if(prob >= max) {
+                ynMax = *itcurr;
+                yprevMax = *itprev;
+                max = prob;
+            }
+        }
+    }
+
+    tags.push_back(ynMax);
+    tags.push_back(yprevMax);
+
 
     return result;
 }

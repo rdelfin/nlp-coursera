@@ -116,6 +116,11 @@ double HiddenMarkovModel::trigramProb(Tag curr, Tag twoPrev, Tag prev) {
 }
 
 double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
+    // Returned the cache'd result of the emission if it already exists
+    if(emissionCache.count({tag, word}) > 0)
+        return emissionCache[{tag, word}];
+
+    double result;
     long tagCount = countTag(tag);
     long wordTagCount = countTagWord(tag, word);
     long wordCount = countWord(word);
@@ -129,10 +134,12 @@ double HiddenMarkovModel::emission(Tag tag, const std::string& word) {
     }
 
     if(wordCount == 0) {
-        return (double) countTagWord(tag, "_RARE_") / tagCount;
+        result = (double) countTagWord(tag, "_RARE_") / tagCount;
     }
     else
-        return (double)wordTagCount / tagCount;
+        result = (double)wordTagCount / tagCount;
+
+    return result;
 }
 
 long HiddenMarkovModel::countWord(const std::string& word) {

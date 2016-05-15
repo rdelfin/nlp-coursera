@@ -46,7 +46,10 @@ public:
     double trigramProb(Tag curr, Tag twoPrev, Tag prev);
 
     ~HiddenMarkovModel();
+
 private:
+    std::unordered_map<std::pair<Tag, std::string>, double> emissionCache;
+
     std::unordered_multimap<std::string, size_t>& textToWord;
     std::unordered_multimap<int, size_t>& tagToWord;
     std::vector<Ngram>& ngrams;

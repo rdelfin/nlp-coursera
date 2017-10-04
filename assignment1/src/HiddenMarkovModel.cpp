@@ -13,7 +13,8 @@ HiddenMarkovModel::HiddenMarkovModel(std::unordered_multimap<std::string, size_t
                                      std::vector<Ngram>& ngrams,
                                      std::vector<Word>& words)
                                     : textToWord(textToWord), tagToWord(tagToWord),
-                                      ngrams(ngrams), words(words)
+                                      ngrams(ngrams), words(words),
+                                      emissionCache(10)
 {
 
 }
